@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso administrativo | Membresía</title>
+
+  <style>
+    :root {
+      --azul: #52685A;
+      --azul-oscuro: #405447;
+      --azul-claro: #E8EDE7;
+      --texto: #343D36;
+      --gris: #6F756E;
+      --borde: #E5DFD1;
+      --fondo: #F7F4EC;
+      --dorado: #D4B779;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top left, #E8EDE7, transparent 48%),
+        var(--fondo);
+      font-family: Arial, sans-serif;
+      color: var(--texto);
+    }
+
+    .tarjeta {
+      width: 100%;
+      max-width: 440px;
+      padding: 34px;
+      background: #FFFFFF;
+      border: 1px solid var(--borde);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(52, 61, 54, 0.10);
+    }
+
+    .logotipos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 24px;
+    }
+
+    .logotipos img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+    }
+
+    .encabezado {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .encabezado h1 {
+      margin: 0 0 12px;
+      padding-bottom: 12px;
+      color: var(--azul);
+      font-size: 25px;
+      line-height: 1.3;
+      border-bottom: 2px solid var(--dorado);
+    }
+
+    .encabezado p {
+      margin: 0;
+      color: var(--gris);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .campo {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--texto);
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--borde);
+      border-radius: 9px;
+      background: #FFFFFF;
+      color: var(--texto);
+      font: inherit;
+    }
+
+    input::placeholder {
+      color: #8A9089;
+    }
+
+    input:focus {
+      outline: 3px solid #E8EDE7;
+      border-color: var(--azul);
+    }
+
+    .campo-contrasena {
+      display: flex;
+      gap: 8px;
+    }
+
+    .campo-contrasena input {
+      flex: 1;
+      width: 0;
+    }
+
+    .boton-ver {
+      padding: 0 14px;
+      border: 1px solid var(--borde);
+      border-radius: 9px;
+      background: var(--azul-claro);
+      color: var(--azul-oscuro);
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .boton-ver:hover {
+      background: #DCE5DA;
+    }
+
+    .boton-ingresar {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--azul);
+      color: #FFFFFF;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .boton-ingresar:hover {
+      background: var(--azul-oscuro);
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--dorado);
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    #mensajeAcceso {
+      min-height: 22px;
+      margin: 16px 0 0;
+      color: var(--gris);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .pie {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--borde);
+      text-align: center;
+      color: var(--gris);
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 14px;
+      }
+
+      .tarjeta {
+        padding: 25px 20px;
+      }
+
+      .logotipos img {
+        width: 76px;
+        height: 76px;
+      }
+
+      .encabezado h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="tarjeta">
+    <div class="logotipos">
+      <img
+        src="../recursos/logo-arca.jpg"
+        alt="Logo de Membresía Arca de Noé"
+      >
+      <img
+        src="../recursos/logo-iglesia.jpg"
+        alt="Logo de la iglesia"
+      >
+    </div>
+
+    <header class="encabezado">
+      <h1>Registro de Datos de Membresía</h1>
+      <p>Acceso exclusivo para el equipo autorizado de Membresía.</p>
+    </header>
+
+    <form id="formularioAcceso">
+      <div class="campo">
+        <label for="correo">Correo electrónico</label>
+        <input
+          type="email"
+          id="correo"
+          name="correo"
+          autocomplete="username"
+          placeholder="Ingrese su correo"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="contrasena">Contraseña</label>
+        <div class="campo-contrasena">
+          <input
+            type="password"
+            id="contrasena"
+            name="contrasena"
+            autocomplete="current-password"
+            placeholder="Ingrese su contraseña"
+            required
+          >
+          <button
+            class="boton-ver"
+            type="button"
+            id="mostrarContrasena"
+            aria-controls="contrasena"
+            aria-pressed="false"
+          >Ver</button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="boton-ingresar"
+        id="botonAcceso"
+      >Ingresar</button>
+
+      <p id="mensajeAcceso" role="status" aria-live="polite"></p>
+    </form>
+
+    <footer class="pie">
+      Membresía Arca de Noé
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../funciones/datos-miembros.js"></script>
+  <script src="../funciones/acceso.js"></script>
+
+  <script>
+    const campoContrasena = document.getElementById("contrasena");
+    const botonMostrar = document.getElementById("mostrarContrasena");
+
+    botonMostrar.addEventListener("click", () => {
+      const mostrar = campoContrasena.type === "password";
+
+      campoContrasena.type = mostrar ? "text" : "password";
+      botonMostrar.textContent = mostrar ? "Ocultar" : "Ver";
+      botonMostrar.setAttribute("aria-pressed", String(mostrar));
+    });
+  </script>
+</body>
+</html>

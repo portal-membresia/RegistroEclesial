@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración | Membresía</title>
+  <style>
+    :root {
+      --verde: #173f35;
+      --verde-2: #24594a;
+      --dorado: #c7a45b;
+      --fondo: #f4f6f3;
+      --texto: #24342e;
+      --borde: #dce4de;
+      --blanco: #fff;
+      --rojo: #a23b3b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--fondo);
+      color: var(--texto);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    header {
+      background: linear-gradient(120deg, var(--verde), #102e27);
+      color: white;
+      padding: 28px clamp(18px, 4vw, 48px);
+      border-bottom: 4px solid var(--dorado);
+    }
+    header .marca {
+      color: #e8d7a9;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+    header h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); }
+    header p { margin: 9px 0 0; color: #dbe8e1; }
+    main {
+      width: min(1500px, 96%);
+      margin: 26px auto 50px;
+    }
+    .tarjeta {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 15px;
+      padding: clamp(16px, 2.5vw, 26px);
+      margin-bottom: 22px;
+      box-shadow: 0 5px 20px rgba(20, 52, 41, .045);
+    }
+    .encabezado-tarjeta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    h2 { font-size: 20px; margin: 0; color: var(--verde); }
+    h3 { font-size: 16px; margin: 22px 0 12px; color: var(--verde-2); }
+    .ayuda { color: #65736c; font-size: 13px; line-height: 1.5; }
+    .rejilla {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+      gap: 14px;
+    }
+    .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .campo label, .etiqueta {
+      font-size: 13px;
+      font-weight: 700;
+      color: #40554b;
+    }
+    input, select, textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #cfd9d2;
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: white;
+      color: var(--texto);
+      font: inherit;
+      font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid #b8d1c4;
+      border-color: var(--verde-2);
+    }
+    input[readonly] { background: #f0f3f0; color: #647168; }
+    .acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: opacity .15s ease, transform .15s ease;
+    }
+    button:hover { opacity: .9; }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: .55; cursor: wait; }
+    .principal { background: var(--verde); color: white; }
+    .secundario { background: #e8eee9; color: var(--verde); }
+    .dorado { background: var(--dorado); color: #202b24; }
+    .peligro { background: #f8e9e7; color: var(--rojo); }
+    .contador {
+      background: #edf3ee;
+      color: var(--verde);
+      border-radius: 20px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .estado {
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      background: #f0f4f1;
+      color: #40554b;
+      font-size: 13px;
+      min-height: 38px;
+    }
+    .estado:empty { display: none; }
+    .estado.error { background: #fff0ee; color: #942d27; }
+    .estado.exito { background: #e9f6ec; color: #23643a; }
+    .cargando {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--verde-2);
+      font-weight: 700;
+    }
+    .rueda {
+      width: 17px; height: 17px;
+      border: 3px solid #d9e5dc;
+      border-top-color: var(--verde-2);
+      border-radius: 50%;
+      animation: girar .75s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    .oculto { display: none !important; }
+    .opciones {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+      margin-top: 9px;
+    }
+    .opcion {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .opcion input { width: auto; margin-top: 2px; }
+    .tabla-contenedor {
+      overflow-x: auto;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+    }
+    table { border-collapse: collapse; width: 100%; min-width: 850px; }
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid #e7ece8;
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    th { background: #edf2ee; color: var(--verde); white-space: nowrap; }
+    tbody tr:hover { background: #f8faf8; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .boton-tabla { padding: 8px 11px; font-size: 12px; }
+    .separador { height: 1px; background: var(--borde); margin: 22px 0; }
+    .nota {
+      background: #faf6e9;
+      border-left: 3px solid var(--dorado);
+      border-radius: 5px;
+      padding: 11px 13px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #5e5238;
+      margin-top: 14px;
+    }
+    @media (max-width: 600px) {
+      main { width: 94%; margin-top: 16px; }
+      header { padding: 23px 18px; }
+      .tarjeta { border-radius: 11px; }
+      .acciones button { flex: 1 1 140px; }
+    }
+    @media print {
+      body { background: white; }
+      header, main { display: none !important; }
+    }
+
+/* Cabecera con logo de Membresía Arca de Noé */
+.cabecera-admin .marca-admin {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cabecera-admin .logo-admin {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.cabecera-admin .texto-marca-admin h1 {
+  margin: 6px 0;
+}
+
+.cabecera-admin .texto-marca-admin p {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .cabecera-admin .marca-admin {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .cabecera-admin .logo-admin {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+.boton-volver-inicio {
+  display: inline-block;
+  margin: 20px;
+  padding: 12px 20px;
+  background-color: #1f5d42;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.boton-volver-inicio:hover {
+  background-color: #16452f;
+}
+
+.boton-volver-inicio:focus-visible {
+  outline: 3px solid #d4a72c;
+  outline-offset: 3px;
+}
+
+  </style>
+</head>
+<body>
+  
+<header class="cabecera-admin">
+  <div class="marca-admin">
+    <img
+      src="../recursos/logo-arca.jpg"
+      alt="Logo de Membresía Arca de Noé"
+      class="logo-admin"
+    >
+    <div class="texto-marca-admin">
+      <div class="marca">Membresía Arca de Noé</div>
+      <h1>Administración de miembros</h1>
+      <p>Consulta, edición y reportes de los registros de membresía.</p>
+    </div>
+  </div>
+</header>
+
+  <main>
+    <section class="tarjeta">
+      <div class="encabezado-tarjeta">
+        <h2>Consultar miembros</h2>
+        <span class="contador" id="contadorMiembros">0 registros</span>
+      </div>
+      <div class="campo">
+        <label for="busquedaGeneral">Búsqueda rápida por código, nombres o apellidos</label>
+        <input id="busquedaGeneral" type="search" placeholder="Escriba para buscar...">
+      </div>
+      <div class="acciones">
+        <button type="button" class="principal" id="botonCargar">Actualizar registros</button>
+      </div>
+      <div id="estadoCarga" class="estado" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="tarjeta" id="panelFiltros">
+      <div class="encabezado-tarjeta">
+        <h2>Filtros de consulta</h2>
+        <span class="ayuda">Puede combinar varios filtros.</span>
+      </div>
+      <div class="rejilla">
+        <div class="campo"><label for="filtroCodigo">Código</label><input id="filtroCodigo" type="number" min="1"></div>
+        <div class="campo"><label for="filtroNombres">Nombres</label><input id="filtroNombres" type="search"></div>
+        <div class="campo"><label for="filtroApellidos">Apellidos</label><input id="filtroApellidos" type="search"></div>
+        <div class="campo"><label for="filtroEdadMinima">Edad mínima</label><input id="filtroEdadMinima" type="number" min="0"></div>
+        <div class="campo"><label for="filtroEdadMaxima">Edad máxima</label><input id="filtroEdadMaxima" type="number" min="0"></div>
+        <div class="campo"><label for="filtroFechaDesde">Nacimiento desde</label><input id="filtroFechaDesde" type="date"></div>
+        <div class="campo"><label for="filtroFechaHasta">Nacimiento hasta</label><input id="filtroFechaHasta" type="date"></div>
+        <div class="campo"><label for="filtroEstadoCivil">Estado civil</label>
+          <select id="filtroEstadoCivil"><option value="">Todos</option><option value="soltero">Soltero</option><option value="casado">Casado</option><option value="viudo">Viudo</option><option value="divorciado">Divorciado</option><option value="otro">Otro</option></select>
+        </div>
+        <div class="campo"><label for="filtroLugarNacimiento">Lugar de nacimiento</label><input id="filtroLugarNacimiento" type="search"></div>
+        <div class="campo"><label for="filtroProfesion">Profesión u ocupación</label><input id="filtroProfesion" type="search"></div>
+        <div class="campo"><label for="filtroNivelAcademico">Nivel académico</label><input id="filtroNivelAcademico" type="search"></div>
+        <div class="campo"><label for="filtroNumeroHijos">Número de hijos</label><input id="filtroNumeroHijos" type="number" min="0"></div>
+        <div class="campo"><label for="filtroTelefono">Teléfono principal</label><input id="filtroTelefono" type="search"></div>
+        <div class="campo"><label for="filtroTelefonoAlternativo">Teléfono alternativo</label><input id="filtroTelefonoAlternativo" type="search"></div>
+        <div class="campo"><label for="filtroBautismoAgua">Bautismo en agua</label>
+          <select id="filtroBautismoAgua"><option value="">Todos</option><option value="si">Sí</option><option value="no">No</option><option value="pendiente">Pendiente</option><option value="sin_respuesta">Sin respuesta</option></select>
+        </div>
+        <div class="campo"><label for="filtroLugarBautismo">Lugar de bautismo</label><input id="filtroLugarBautismo" type="search"></div>
+        <div class="campo"><label for="filtroBautismoEspiritu">Bautismo en el Espíritu Santo</label>
+          <select id="filtroBautismoEspiritu"><option value="">Todos</option><option value="si">Sí</option><option value="no">No</option><option value="sin_respuesta">Pendiente de confirmar</option></select>
+        </div>
+        <div class="campo"><label for="filtroOrganizacion">Organización</label><select id="filtroOrganizacion"><option value="">Todas las organizaciones</option></select></div>
+        <div class="campo"><label for="filtroEstudioBiblico">Estudio bíblico</label><select id="filtroEstudioBiblico"><option value="">Todos los estudios</option></select></div>
+        <div class="campo"><label for="filtroVinculoFamiliar">Vínculo familiar</label>
+          <select id="filtroVinculoFamiliar"><option value="">Todos</option><option value="confirmado">Confirmado</option><option value="pendiente">Pendiente</option></select>
+        </div>
+        <div class="campo"><label for="filtroParentesco">Parentesco registrado</label>
+          <select id="filtroParentesco"><option value="">Todos</option><option value="padre">Padre</option><option value="madre">Madre</option><option value="encargado">Encargado</option><option value="tutor_legal">Tutor legal</option><option value="otro">Otro</option></select>
+        </div>
+      </div>
+      <div class="acciones">
+        <button type="button" class="principal" id="botonAplicarFiltros">Aplicar filtros</button>
+        <button type="button" class="secundario" id="botonLimpiarFiltros">Limpiar filtros</button>
+        <button type="button" class="dorado" id="botonGenerarPDF">Generar / guardar PDF</button>
+      </div>
+      <div id="estadoFiltros" class="estado" role="status" aria-live="polite"></div>
+      <p class="ayuda">El PDF incluirá los resultados que se muestran después de aplicar los filtros.</p>
+    </section>
+
+    <section class="tarjeta">
+      <div class="encabezado-tarjeta">
+        <h2>Listado de miembros</h2>
+        <span class="ayuda">Use «Editar» para modificar un registro.</span>
+      </div>
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr><th>Código</th><th>Nombres</th><th>Apellidos</th><th>Fecha de nacimiento</th><th>Teléfono</th><th>Estado civil</th><th>Acción</th></tr>
+          </thead>
+          <tbody id="listaMiembros">
+            <tr><td colspan="7">Cargando registros...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="tarjeta oculto" id="panelEdicion">
+      <div class="encabezado-tarjeta">
+        <h2>Editar registro de miembro</h2>
+        <span id="edicionCodigoVisible" class="contador">Código: —</span>
+      </div>
+      <form id="formularioEdicion">
+        <input type="hidden" id="edicionId">
+        <div class="rejilla">
+          <div class="campo"><label for="edicionCodigo">Código de miembro</label><input id="edicionCodigo" readonly></div>
+          <div class="campo"><label for="edicionNombres">Nombres *</label><input id="edicionNombres" required></div>
+          <div class="campo"><label for="edicionApellidos">Apellidos *</label><input id="edicionApellidos" required></div>
+          <div class="campo"><label for="edicionFecha">Fecha de nacimiento *</label><input id="edicionFecha" type="date" required></div>
+          <div class="campo"><label for="edicionEdad">Edad calculada</label><input id="edicionEdad" readonly></div>
+          <div class="campo"><label for="edicionEstadoCivil">Estado civil</label>
+            <select id="edicionEstadoCivil"><option value="">Sin especificar</option><option value="soltero">Soltero</option><option value="casado">Casado</option><option value="viudo">Viudo</option><option value="divorciado">Divorciado</option><option value="otro">Otro</option></select>
+          </div>
+          <div class="campo"><label for="edicionLugarNacimiento">Lugar de nacimiento</label><input id="edicionLugarNacimiento"></div>
+          <div class="campo"><label for="edicionProfesion">Profesión u ocupación</label><input id="edicionProfesion"></div>
+          <div class="campo"><label for="edicionNivelAcademico">Nivel académico</label>
+            <select id="edicionNivelAcademico"><option value="">Sin especificar</option><option value="sin estudios formales">Sin estudios formales</option><option value="primaria">Primaria</option><option value="básico">Básico</option><option value="diversificado">Diversificado</option><option value="universitario">Universitario</option><option value="posgrado">Posgrado</option><option value="otro">Otro</option></select>
+          </div>
+          <div class="campo"><label for="edicionTelefono">Teléfono principal</label><input id="edicionTelefono" type="tel"></div>
+          <div class="campo"><label for="edicionTelefonoAlternativo">Teléfono alternativo</label><input id="edicionTelefonoAlternativo" type="tel"></div>
+          <div class="campo"><label for="edicionNumeroHijos">Número de hijos</label><input id="edicionNumeroHijos" type="number" min="0"></div>
+          <div class="campo"><label for="edicionBautismoAgua">Bautismo en agua</label>
+            <select id="edicionBautismoAgua"><option value="">Sin especificar</option><option value="si">Sí</option><option value="no">No</option><option value="pendiente">Pendiente</option><option value="sin_respuesta">Sin respuesta</option></select>
+          </div>
+          <div class="campo" id="grupoEdicionLugarBautismo"><label for="edicionLugarBautismo">Lugar de bautismo</label><input id="edicionLugarBautismo"></div>
+          <div class="campo"><label for="edicionBautismoEspiritu">Bautismo en el Espíritu Santo</label>
+            <select id="edicionBautismoEspiritu"><option value="">Sin especificar</option><option value="si">Sí</option><option value="no">No</option><option value="sin_respuesta">Pendiente de confirmar</option></select>
+          </div>
+        </div>
+
+        <div class="separador"></div>
+        <h3>Organizaciones</h3>
+        <p class="ayuda">Marque las organizaciones a las que pertenece actualmente el miembro.</p>
+        <div id="edicionOrganizaciones" class="opciones"></div>
+
+        <h3>Estudios bíblicos</h3>
+        <p class="ayuda">Marque los estudios bíblicos que cursa o ha seleccionado el miembro.</p>
+        <div id="edicionEstudios" class="opciones"></div>
+
+        <div id="seccionResponsable" class="oculto">
+          <div class="separador"></div>
+          <h3>Responsable y vínculo familiar del menor</h3>
+          <p class="ayuda">Si el responsable está registrado como miembro, selecciónelo por código. Si aún no está registrado, puede dejar el vínculo pendiente.</p>
+          <div class="rejilla">
+            <div class="campo"><label for="edicionEstadoVinculo">Estado del vínculo</label>
+              <select id="edicionEstadoVinculo"><option value="pendiente">Pendiente</option><option value="confirmado">Confirmado</option></select>
+            </div>
+            <div class="campo"><label for="edicionAdultoMiembro">Adulto registrado</label><select id="edicionAdultoMiembro"><option value="">No seleccionado</option></select></div>
+            <div class="campo"><label for="edicionNombresResponsable">Nombres del responsable pendiente</label><input id="edicionNombresResponsable"></div>
+            <div class="campo"><label for="edicionApellidosResponsable">Apellidos del responsable pendiente</label><input id="edicionApellidosResponsable"></div>
+            <div class="campo"><label for="edicionTelefonoResponsable">Teléfono del responsable</label><input id="edicionTelefonoResponsable" type="tel"></div>
+            <div class="campo"><label for="edicionParentesco">Parentesco</label>
+              <select id="edicionParentesco"><option value="">Seleccione</option><option value="padre">Padre</option><option value="madre">Madre</option><option value="encargado">Encargado</option><option value="tutor_legal">Tutor legal</option><option value="otro">Otro</option></select>
+            </div>
+            <div class="campo"><label for="edicionObservacionesVinculo">Observaciones del vínculo</label><textarea id="edicionObservacionesVinculo" rows="2"></textarea></div>
+          </div>
+          <div class="nota">Antes de confirmar un vínculo, verifique que el código y el nombre del adulto seleccionado correspondan a la persona responsable.</div>
+        </div>
+
+        <div class="acciones">
+          <button type="submit" class="principal" id="botonGuardarEdicion">Guardar cambios</button>
+          <button type="button" class="secundario" id="botonCancelarEdicion">Cancelar</button>
+        </div>
+        <div id="estadoEdicion" class="estado" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../funciones/datos-miembros.js"></script>
+  <script src="../funciones/administracion.js"></script>
+
+<a class="boton-volver-inicio" href="acceso.html">
+  ← Volver al inicio
+</a>
+
+</body>
+</html>
