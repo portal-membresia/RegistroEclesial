@@ -775,7 +775,7 @@ async function generarPDF() {
     let logoCargado = false;
 
     try {
-     Const respuesta = await fetch("logo-arca.jpg");
+     const respuesta = await fetch("logo-arca.jpg");
 
       if (!respuesta.ok) {
         throw new Error("No se encontró el logo.");
