@@ -27,12 +27,22 @@ function obtenerUrlImagen(url) {
     try {
         const enlace = new URL(url);
 
-        if (enlace.hostname === "drive.google.com") {
-            const coincidencia = enlace.pathname.match(/\/file\/d\/([^/]+)/);
+        if (enlace.protocol !== "https:" && enlace.protocol !== "http:") {
+            return "";
+        }
 
-            if (coincidencia) {
-                return "https://drive.google.com/uc?export=view&id=" +
-                    encodeURIComponent(coincidencia[1]);
+        if (enlace.hostname === "drive.google.com") {
+            const coincidencia = enlace.pathname.match(
+                /\/file\/d\/([^/]+)/
+            );
+
+            const id = coincidencia
+                ? coincidencia[1]
+                : enlace.searchParams.get("id");
+
+            if (id) {
+                return "https://drive.google.com/thumbnail?id=" +
+                    encodeURIComponent(id) + "&sz=w1000";
             }
         }
 
@@ -41,7 +51,6 @@ function obtenerUrlImagen(url) {
         return "";
     }
 }
-
 if (campoFoto) {
     campoFoto.addEventListener("input", () => {
         const url = obtenerUrlImagen(campoFoto.value.trim());
