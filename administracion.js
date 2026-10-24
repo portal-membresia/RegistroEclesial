@@ -419,6 +419,25 @@ async function iniciarAdministracion() {
     $("edicionCodigoVisible").textContent = `Código: ${m.codigo_miembro ?? "—"}`;
     asignar("edicionNombres", m.nombres);
     asignar("edicionApellidos", m.apellidos);
+    const foto = $("edicionFoto");
+const mensajeFoto = $("edicionFotoMensaje");
+
+if (foto && mensajeFoto) {
+    foto.onerror = () => {
+        foto.style.display = "none";
+        mensajeFoto.textContent = "No se pudo cargar la fotografía.";
+    };
+
+    if (m.foto_url) {
+        foto.src = m.foto_url;
+        foto.style.display = "block";
+        mensajeFoto.textContent = "";
+    } else {
+        foto.removeAttribute("src");
+        foto.style.display = "none";
+        mensajeFoto.textContent = "Sin fotografía registrada.";
+    }
+}
     asignar("edicionFecha", m.fecha_nacimiento);
     asignar("edicionEdad", calcularEdad(m.fecha_nacimiento));
     asignar("edicionEstadoCivil", m.estado_civil);
