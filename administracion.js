@@ -563,191 +563,201 @@ if (foto && mensajeFoto) {
   }
 
   
-function abrirEdicion(id) {
-  const m = tablas.miembros.find((miembro) => miembro.id === id);
-  if (!m) return;
+  function abrirEdicion(id) {
+    const m = tablas.miembros.find((miembro) => miembro.id === id);
+    if (!m) return;
 
-  miembroEnEdicion = m;
-  vinculoEnEdicion = obtenerVinculosDeMenor(id)[0] || null;
-  llenarOpcionesDeEdicion();
+    miembroEnEdicion = m;
+    vinculoEnEdicion = obtenerVinculosDeMenor(id)[0] || null;
+    llenarOpcionesDeEdicion();
 
-  asignar("edicionId", m.id);
-  asignar("edicionCodigo", m.codigo_miembro);
-  asignar("edicionCodigoVisible", `Código: ${m.codigo_miembro ?? "—"}`);
-  $("edicionCodigoVisible").textContent =
-    `Código: ${m.codigo_miembro ?? "—"}`;
+    asignar("edicionId", m.id);
+    asignar("edicionCodigo", m.codigo_miembro);
+    asignar("edicionCodigoVisible", `Código: ${m.codigo_miembro ?? "—"}`);
+    asignar("edicionNombres", m.nombres);
+    asignar("edicionApellidos", m.apellidos);
 
-  asignar("edicionNombres", m.nombres);
-  asignar("edicionApellidos", m.apellidos);
+    // Fotografía del miembro.
+    asignar("edicionFotoUrl", m.foto_url);
 
-  // Preparar la fotografía y su vista previa.
-  asignar("edicionFotoUrl", m.foto_url);
+    const campoFotoUrl = $("edicionFotoUrl");
+    const foto = $("edicionFoto");
+    const mensajeFoto = $("edicionFotoMensaje");
 
-  const campoFotoUrl = $("edicionFotoUrl");
-  const foto = $("edicionFoto");
-  const mensajeFoto = $("edicionFotoMensaje");
+    function actualizarVistaFoto() {
+      if (!campoFotoUrl || !foto || !mensajeFoto) return;
 
-  function actualizarVistaFoto() {
-    if (!campoFotoUrl || !foto || !mensajeFoto) return;
+      const url = obtenerUrlFotoAdministracion(campoFotoUrl.value);
 
-    const url = obtenerUrlFotoAdministracion(campoFotoUrl.value);
+      foto.onload = null;
+      foto.onerror = null;
 
-    if (!url) {
+      if (!url) {
+        foto.style.display = "none";
+        foto.removeAttribute("src");
+        mensajeFoto.textContent = "Sin fotografía o enlace no válido.";
+        return;
+      }
+
+      mensajeFoto.textContent = "Cargando fotografía…";
       foto.style.display = "none";
-      foto.removeAttribute("src");
-      mensajeFoto.textContent =
-        "Pegue un enlace válido para mostrar la fotografía.";
-      return;
+
+      foto.onload = () => {
+        foto.style.display = "block";
+        mensajeFoto.textContent = "Vista previa disponible.";
+      };
+
+      foto.onerror = () => {
+        foto.style.display = "none";
+        mensajeFoto.textContent =
+          "No se pudo cargar la imagen. Revise el enlace y sus permisos.";
+      };
+
+      foto.src = url;
     }
 
-    mensajeFoto.textContent = "Cargando fotografía…";
-    foto.style.display = "none";
+    if (campoFotoUrl) {
+      campoFotoUrl.oninput = actualizarVistaFoto;
+    }
 
-    foto.onload = () => {
-      foto.style.display = "block";
-      mensajeFoto.textContent = "Vista previa disponible.";
-    };
+    actualizarVistaFoto();
 
-    foto.onerror = () => {
-      foto.style.display = "none";
-      mensajeFoto.textContent =
-        "No se pudo cargar la imagen. Revise el enlace y sus permisos.";
-    };
+    asignar("edicionFecha", m.fecha_nacimiento);
+    asignar("edicionEdad", calcularEdad(m.fecha_nacimiento));
+    asignar("edicionEstadoCivil", m.estado_civil);
+    asignar("edicionLugarNacimiento", m.lugar_nacimiento);
+    asignar("edicionProfesion", m.profesion_ocupacion);
+    asignar("edicionNivelAcademico", m.nivel_academico);
+    asignar("edicionTelefono", m.telefono_principal);
+    asignar("edicionTelefonoAlternativo", m.telefono_alternativo);
+    asignar("edicionNumeroHijos", m.numero_hijos);
+    asignar("edicionBautismoAgua", m.bautismo_agua);
+    asignar("edicionLugarBautismo", m.lugar_bautismo);
+    asignar("edicionBautismoEspiritu", m.bautismo_espiritu_santo);
 
-    foto.src = url;
-  }
-
-  if (campoFotoUrl) {
-    campoFotoUrl.oninput = actualizarVistaFoto;
-  }
-
-  actualizarVistaFoto();
-
-  asignar("edicionFecha", m.fecha_nacimiento);
-  asignar("edicionEdad", calcularEdad(m.fecha_nacimiento));
-  asignar("edicionEstadoCivil", m.estado_civil);
-  asignar("edicionLugarNacimiento", m.lugar_nacimiento);
-  asignar("edicionProfesion", m.profesion_ocupacion);
-  asignar("edicionNivelAcademico", m.nivel_academico);
-  asignar("edicionTelefono", m.telefono_principal);
-  asignar("edicionTelefonoAlternativo", m.telefono_alternativo);
-  asignar("edicionNumeroHijos", m.numero_hijos);
-  asignar("edicionBautismoAgua", m.bautismo_agua);
-  asignar("edicionLugarBautismo", m.lugar_bautismo);
-  asignar("edicionBautismoEspiritu", m.bautismo_espiritu_santo);
-
-  // Conservar valores existentes que ya no estén entre las opciones.
-  [
-    "edicionEstadoCivil",
-    "edicionNivelAcademico",
-    "edicionBautismoAgua",
-    "edicionBautismoEspiritu"
-  ].forEach((idCampo) => {
-    const campo = $(idCampo);
-
-    if (!campo) return;
-
-    const columna = {
+    const camposHistoricos = {
       edicionEstadoCivil: "estado_civil",
       edicionNivelAcademico: "nivel_academico",
       edicionBautismoAgua: "bautismo_agua",
       edicionBautismoEspiritu: "bautismo_espiritu_santo"
-    }[idCampo];
+    };
 
-    const dato = m[columna];
+    Object.entries(camposHistoricos).forEach(([idCampo, columna]) => {
+      const campo = $(idCampo);
+      const dato = m[columna];
 
-    if (
-      dato &&
-      ![...campo.options].some((opcion) => opcion.value === dato)
-    ) {
-      campo.add(new Option(`${dato} (valor existente)`, dato));
+      if (
+        campo &&
+        dato &&
+        ![...campo.options].some((opcion) => opcion.value === dato)
+      ) {
+        campo.add(new Option(`${dato} (valor existente)`, dato));
+      }
+    });
+
+    const orgs = tablas.organizacionesMiembros
+      .filter((r) =>
+        r.miembro_id === id &&
+        r.activa !== false &&
+        !r.fecha_fin
+      )
+      .map((r) => r.organizacion_id);
+
+    const estudios = tablas.estudiosMiembros
+      .filter((r) =>
+        r.miembro_id === id &&
+        r.activa !== false
+      )
+      .map((r) => r.organizacion_id);
+
+    marcarCasillas("edicionOrganizaciones", orgs);
+    marcarCasillas("edicionEstudios", estudios);
+
+    const edad = calcularEdad(m.fecha_nacimiento);
+    $("seccionResponsable").classList.toggle(
+      "oculto",
+      edad === "" || edad >= 18
+    );
+
+    if (vinculoEnEdicion) {
+      asignar("edicionEstadoVinculo", vinculoEnEdicion.estado_vinculo);
+      asignar("edicionAdultoMiembro", vinculoEnEdicion.adulto_miembro_id);
+      asignar("edicionNombresResponsable", vinculoEnEdicion.nombres_adulto_pendiente);
+      asignar("edicionApellidosResponsable", vinculoEnEdicion.apellidos_adulto_pendiente);
+      asignar("edicionTelefonoResponsable", vinculoEnEdicion.telefono_adulto_pendiente);
+      asignar("edicionParentesco", vinculoEnEdicion.parentesco);
+      asignar("edicionObservacionesVinculo", vinculoEnEdicion.observaciones);
+    } else {
+      asignar("edicionEstadoVinculo", "pendiente");
+      asignar("edicionAdultoMiembro", "");
+      asignar("edicionNombresResponsable", "");
+      asignar("edicionApellidosResponsable", "");
+      asignar("edicionTelefonoResponsable", "");
+      asignar("edicionParentesco", "");
+      asignar("edicionObservacionesVinculo", "");
     }
-  });
 
-  const orgs = tablas.organizacionesMiembros
-    .filter((r) =>
-      r.miembro_id === id &&
-      r.activa !== false &&
-      !r.fecha_fin
-    )
-    .map((r) => r.organizacion_id);
-
-  const estudios = tablas.estudiosMiembros
-    .filter((r) =>
-      r.miembro_id === id &&
-      r.activa !== false
-    )
-    .map((r) => r.organizacion_id);
-
-  marcarCasillas("edicionOrganizaciones", orgs);
-  marcarCasillas("edicionEstudios", estudios);
-
-  const edad = calcularEdad(m.fecha_nacimiento);
-
-  $("seccionResponsable").classList.toggle(
-    "oculto",
-    edad === "" || edad >= 18
-  );
-
-  if (vinculoEnEdicion) {
-    asignar("edicionEstadoVinculo", vinculoEnEdicion.estado_vinculo);
-    asignar("edicionAdultoMiembro", vinculoEnEdicion.adulto_miembro_id);
-    asignar(
-      "edicionNombresResponsable",
-      vinculoEnEdicion.nombres_adulto_pendiente
-    );
-    asignar(
-      "edicionApellidosResponsable",
-      vinculoEnEdicion.apellidos_adulto_pendiente
-    );
-    asignar(
-      "edicionTelefonoResponsable",
-      vinculoEnEdicion.telefono_adulto_pendiente
-    );
-    asignar("edicionParentesco", vinculoEnEdicion.parentesco);
-    asignar(
-      "edicionObservacionesVinculo",
-      vinculoEnEdicion.observaciones
-    );
-  } else {
-    asignar("edicionEstadoVinculo", "pendiente");
-    asignar("edicionAdultoMiembro", "");
-    asignar("edicionNombresResponsable", "");
-    asignar("edicionApellidosResponsable", "");
-    asignar("edicionTelefonoResponsable", "");
-    asignar("edicionParentesco", "");
-    asignar("edicionObservacionesVinculo", "");
+    mostrarCamposBautismo();
+    mostrarEstado("estadoEdicion", "");
+    $("panelEdicion").classList.remove("oculto");
+    $("panelEdicion").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
 
-  mostrarCamposBautismo();
-  mostrarEstado("estadoEdicion", "");
+  async function sincronizarOrganizaciones(miembroId, idsSeleccionados) {
+    const disponibles = new Set(
+      tablas.organizaciones.filter(esMinisterio).map((o) => o.id)
+    );
 
-  $("panelEdicion").classList.remove("oculto");
-  $("panelEdicion").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
+    const actuales = tablas.organizacionesMiembros.filter((r) =>
+      r.miembro_id === miembroId &&
+      disponibles.has(r.organizacion_id)
+    );
 
+    const seleccionados = new Set(idsSeleccionados);
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    for (const relacion of actuales) {
+      const debeEstarActivo = seleccionados.has(relacion.organizacion_id);
+      const estaActivo = relacion.activa !== false && !relacion.fecha_fin;
+
+      if (debeEstarActivo !== estaActivo) {
+        const { error } = await db
+          .from("miembros_organizaciones")
+          .update({
+            activa: debeEstarActivo,
+            fecha_fin: debeEstarActivo ? null : hoy
+          })
+          .eq("id", relacion.id);
+
+        if (error) throw error;
+      }
+    }
 
     for (const idOrg of seleccionados) {
       const existeActiva = actuales.some((r) =>
-        r.organizacion_id === idOrg && r.activa !== false && !r.fecha_fin
+        r.organizacion_id === idOrg &&
+        r.activa !== false &&
+        !r.fecha_fin
       );
+
       if (!existeActiva) {
-        const { error } = await db.from("miembros_organizaciones").insert({
-          miembro_id: miembroId,
-          organizacion_id: idOrg,
-          fecha_inicio: hoy,
-          fecha_fin: null,
-          activa: true
-        });
+        const { error } = await db
+          .from("miembros_organizaciones")
+          .insert({
+            miembro_id: miembroId,
+            organizacion_id: idOrg,
+            fecha_inicio: hoy,
+            fecha_fin: null,
+            activa: true
+          });
+
         if (error) throw error;
       }
     }
   }
-
-  async function sincronizarEstudios(miembroId, idsSeleccionados) {
     const disponibles = new Set(
       tablas.organizaciones.filter(esEstudio).map((o) => o.id)
     );
