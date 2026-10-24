@@ -47,15 +47,28 @@ if (campoFoto) {
         const url = obtenerUrlImagen(campoFoto.value.trim());
 
         if (!url) {
-            contenedorVistaPrevia.style.display = "none";
-            vistaPreviaFoto.removeAttribute("src");
-            estadoVistaPrevia.textContent = "";
-            return;
-        }
+    if (contenedorVistaPrevia) {
+        contenedorVistaPrevia.style.display = "none";
+    }
 
-        contenedorVistaPrevia.style.display = "block";
-        estadoVistaPrevia.textContent = "Cargando vista previa…";
-        vistaPreviaFoto.src = url;
+    if (vistaPreviaFoto) {
+        vistaPreviaFoto.removeAttribute("src");
+    }
+
+    if (estadoVistaPrevia) {
+        estadoVistaPrevia.textContent = "";
+    }
+
+    return;
+}
+
+if (!contenedorVistaPrevia || !vistaPreviaFoto || !estadoVistaPrevia) {
+    return;
+}
+
+contenedorVistaPrevia.style.display = "block";
+estadoVistaPrevia.textContent = "Cargando vista previa…";
+vistaPreviaFoto.src = url;
     });
 
     vistaPreviaFoto.addEventListener("load", () => {
