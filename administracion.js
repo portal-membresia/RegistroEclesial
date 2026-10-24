@@ -576,10 +576,8 @@ function obtenerUrlFotoAdministracion(url) {
     });
   }
 
-  async function sincronizarOrganizaciones(miembroId, idsSeleccionados) {
-    
-  async function sincronizarEstudios(miembroId, idsSeleccionados) {
 
+  async function sincronizarOrganizaciones(miembroId, idsSeleccionados) {
     const disponibles = new Set(
       tablas.organizaciones.filter(esMinisterio).map((o) => o.id)
     );
@@ -631,12 +629,17 @@ function obtenerUrlFotoAdministracion(url) {
       }
     }
   }
+
+  async function sincronizarEstudios(miembroId, idsSeleccionados) {
     const disponibles = new Set(
       tablas.organizaciones.filter(esEstudio).map((o) => o.id)
     );
+
     const actuales = tablas.estudiosMiembros.filter((r) =>
-      r.miembro_id === miembroId && disponibles.has(r.organizacion_id)
+      r.miembro_id === miembroId &&
+      disponibles.has(r.organizacion_id)
     );
+
     const seleccionados = new Set(idsSeleccionados);
     const hoy = new Date().toISOString().slice(0, 10);
 
@@ -645,9 +648,11 @@ function obtenerUrlFotoAdministracion(url) {
       const estaActivo = relacion.activa !== false;
 
       if (debeEstarActivo !== estaActivo) {
-        const { error } = await db.from("miembros_estudios_biblicos")
+        const { error } = await db
+          .from("miembros_estudios_biblicos")
           .update({ activa: debeEstarActivo })
           .eq("id", relacion.id);
+
         if (error) throw error;
       }
     }
@@ -656,17 +661,22 @@ function obtenerUrlFotoAdministracion(url) {
       const existeActivo = actuales.some((r) =>
         r.organizacion_id === idOrg && r.activa !== false
       );
+
       if (!existeActivo) {
-        const { error } = await db.from("miembros_estudios_biblicos").insert({
-          miembro_id: miembroId,
-          organizacion_id: idOrg,
-          fecha_inicio: hoy,
-          activa: true
-        });
+        const { error } = await db
+          .from("miembros_estudios_biblicos")
+          .insert({
+            miembro_id: miembroId,
+            organizacion_id: idOrg,
+            fecha_inicio: hoy,
+            activa: true
+          });
+
         if (error) throw error;
       }
     }
   }
+
 
   async function guardarVinculo(miembroId) {
     const edad = calcularEdad(valor("edicionFecha"));
