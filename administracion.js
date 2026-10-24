@@ -678,6 +678,53 @@ function obtenerUrlFotoAdministracion(url) {
   }
 
 
+  async function sincronizarEstudios(miembroId, idsSeleccionados) {
+    const disponibles = new Set(
+      tablas.organizaciones.filter(esEstudio).map((o) => o.id)
+    );
+
+    const actuales = tablas.estudiosMiembros.filter((r) =>
+      r.miembro_id === miembroId &&
+      disponibles.has(r.organizacion_id)
+    );
+
+    const seleccionados = new Set(idsSeleccionados);
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    for (const relacion of actuales) {
+      const debeEstarActivo = seleccionados.has(relacion.organizacion_id);
+      const estaActivo = relacion.activa !== false;
+
+      if (debeEstarActivo !== estaActivo) {
+        const { error } = await db
+          .from("miembros_estudios_biblicos")
+          .update({ activa: debeEstarActivo })
+          .eq("id", relacion.id);
+
+        if (error) throw error;
+      }
+    }
+
+    for (const idOrg of seleccionados) {
+      const existeActivo = actuales.some((r) =>
+        r.organizacion_id === idOrg && r.activa !== false
+      );
+
+      if (!existeActivo) {
+        const { error } = await db
+          .from("miembros_estudios_biblicos")
+          .insert({
+            miembro_id: miembroId,
+            organizacion_id: idOrg,
+            fecha_inicio: hoy,
+            activa: true
+          });
+
+        if (error) throw error;
+      }
+    }
+  }
+
   async function guardarVinculo(miembroId) {
     const edad = calcularEdad(valor("edicionFecha"));
     if (edad === "" || edad >= 18) return;
