@@ -265,6 +265,7 @@ if (campoFoto) {
 
         const datos = {
             nombres: obtenerValor("nombres"),
+            foto_url: obtenerUrlImagen(obtenerValor("foto_url")) || null,
             apellidos: obtenerValor("apellidos"),
             fecha_nacimiento: resultadoFecha.fechaISO,
             telefono_principal: obtenerValor("telefono_principal"),
@@ -330,6 +331,17 @@ if (campoFoto) {
             actualizarEdad();
             actualizarLugarBautismo();
             actualizarResponsable(null);
+if (contenedorVistaPrevia) {
+    contenedorVistaPrevia.style.display = "none";
+}
+
+if (vistaPreviaFoto) {
+    vistaPreviaFoto.removeAttribute("src");
+}
+
+if (estadoVistaPrevia) {
+    estadoVistaPrevia.textContent = "";
+}
 
         } catch (error) {
             console.error("Error al enviar el formulario:", error);
