@@ -15,6 +15,58 @@ window.supabaseCliente = window.supabase.createClient(
 
 document.addEventListener("DOMContentLoaded", () => {
     const formulario = document.getElementById("formularioMiembro");
+   
+const campoFoto = document.getElementById("foto_url");
+const contenedorVistaPrevia = document.getElementById("contenedorVistaPrevia");
+const vistaPreviaFoto = document.getElementById("vistaPreviaFoto");
+const estadoVistaPrevia = document.getElementById("estadoVistaPrevia");
+
+function obtenerUrlImagen(url) {
+    if (!url) return "";
+
+    try {
+        const enlace = new URL(url);
+
+        if (enlace.hostname === "drive.google.com") {
+            const coincidencia = enlace.pathname.match(/\/file\/d\/([^/]+)/);
+
+            if (coincidencia) {
+                return "https://drive.google.com/uc?export=view&id=" +
+                    encodeURIComponent(coincidencia[1]);
+            }
+        }
+
+        return enlace.href;
+    } catch {
+        return "";
+    }
+}
+
+if (campoFoto) {
+    campoFoto.addEventListener("input", () => {
+        const url = obtenerUrlImagen(campoFoto.value.trim());
+
+        if (!url) {
+            contenedorVistaPrevia.style.display = "none";
+            vistaPreviaFoto.removeAttribute("src");
+            estadoVistaPrevia.textContent = "";
+            return;
+        }
+
+        contenedorVistaPrevia.style.display = "block";
+        estadoVistaPrevia.textContent = "Cargando vista previa…";
+        vistaPreviaFoto.src = url;
+    });
+
+    vistaPreviaFoto.addEventListener("load", () => {
+        estadoVistaPrevia.textContent = "Vista previa disponible.";
+    });
+
+    vistaPreviaFoto.addEventListener("error", () => {
+        estadoVistaPrevia.textContent =
+            "No se pudo mostrar la imagen. Revise el enlace y sus permisos.";
+    });
+}
 
     const fechaNacimiento = document.getElementById("fecha_nacimiento");
     const campoEdad = document.getElementById("edad");
