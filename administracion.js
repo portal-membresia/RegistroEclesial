@@ -84,6 +84,34 @@ async function iniciarAdministracion() {
   function coincideTexto(valor, filtro) {
     return !filtro || normalizar(valor).includes(normalizar(filtro));
   }
+  
+function obtenerUrlFotoAdministracion(url) {
+  if (!url) return "";
+
+  try {
+    const enlace = new URL(url);
+
+    if (enlace.protocol !== "https:" && enlace.protocol !== "http:") {
+      return "";
+    }
+
+    if (enlace.hostname === "drive.google.com") {
+      const coincidencia = enlace.pathname.match(/\/file\/d\/([^/]+)/);
+      const id = coincidencia
+        ? coincidencia[1]
+        : enlace.searchParams.get("id");
+
+      if (id) {
+        return "https://drive.google.com/thumbnail?id=" +
+          encodeURIComponent(id) + "&sz=w1000";
+      }
+    }
+
+    return enlace.href;
+  } catch {
+    return "";
+  }
+}
 
   function valor(id) {
     return $(id)?.value?.trim() ?? "";
@@ -419,6 +447,38 @@ async function iniciarAdministracion() {
     $("edicionCodigoVisible").textContent = `Código: ${m.codigo_miembro ?? "—"}`;
     asignar("edicionNombres", m.nombres);
     asignar("edicionApellidos", m.apellidos);
+    
+asignar("edicionFotoUrl", m.foto_url);
+
+const foto = $("edicionFoto");
+const mensajeFoto = $("edicionFotoMensaje");
+
+function actualizarVistaFoto() {
+  const url = obtenerUrlFotoAdministracion(valor("edicionFotoUrl"));
+
+  if (!url) {
+    foto.style.display = "none";
+    foto.removeAttribute("src");
+    mensajeFoto.textContent = "Sin fotografía o enlace no válido.";
+    return;
+  }
+
+  foto.onerror = () => {
+    foto.style.display = "none";
+    mensajeFoto.textContent = "No se pudo cargar la imagen. Revise el enlace.";
+  };
+
+  foto.onload = () => {
+    mensajeFoto.textContent = "Vista previa disponible.";
+  };
+
+  foto.src = url;
+  foto.style.display = "block";
+}
+
+$("edicionFotoUrl").oninput = actualizarVistaFoto;
+actualizarVistaFoto();
+
     const foto = $("edicionFoto");
 const mensajeFoto = $("edicionFotoMensaje");
 
@@ -652,6 +712,7 @@ if (foto && mensajeFoto) {
       const datos = {
         nombres: valor("edicionNombres"),
         apellidos: valor("edicionApellidos"),
+        foto_url: obtenerUrlFotoAdministracion(valor("edicionFotoUrl")) || null,
         fecha_nacimiento: nacimiento,
         telefono_principal: valor("edicionTelefono") || null,
         telefono_alternativo: valor("edicionTelefonoAlternativo") || null,
