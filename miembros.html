@@ -648,9 +648,35 @@
                             maxlength="25"
                             placeholder="Número alternativo"
                         >
-                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        
+            <div class="campo campo-completo">
+                <label for="foto_url">Fotografía del miembro (opcional)</label>
+                <input
+                    type="url"
+                    id="foto_url"
+                    name="foto_url"
+                    placeholder="Pegue aquí el enlace de la fotografía"
+                    maxlength="1000"
+                >
+                <p class="descripcion-seccion">
+                    Pegue un enlace que permita visualizar la imagen.
+                    La fotografía es opcional.
+                </p>
+            
+                <div id="contenedorVistaPrevia" style="display: none; margin-top: 12px;">
+                    <img
+                        id="vistaPreviaFoto"
+                        src=""
+                        alt="Vista previa de la fotografía del miembro"
+                        style="width: 130px; height: 150px; object-fit: cover; border-radius: 12px; border: 1px solid #d8dfd5;"
+                    >
+                    <p id="estadoVistaPrevia" style="font-size: 13px;"></p>
                 </div>
-            </section>
+            </div>
+
 
             <!-- 2. INFORMACIÓN ESPIRITUAL -->
 
