@@ -432,136 +432,6 @@ function obtenerUrlFotoAdministracion(url) {
     $("grupoEdicionLugarBautismo").classList.toggle("oculto", !tieneBautismo);
     if (!tieneBautismo) asignar("edicionLugarBautismo", "");
   }
-
-  function abrirEdicion(id) {
-    const m = tablas.miembros.find((miembro) => miembro.id === id);
-    if (!m) return;
-
-    miembroEnEdicion = m;
-    vinculoEnEdicion = obtenerVinculosDeMenor(id)[0] || null;
-    llenarOpcionesDeEdicion();
-
-    asignar("edicionId", m.id);
-    asignar("edicionCodigo", m.codigo_miembro);
-    asignar("edicionCodigoVisible", `Código: ${m.codigo_miembro ?? "—"}`);
-    $("edicionCodigoVisible").textContent = `Código: ${m.codigo_miembro ?? "—"}`;
-    asignar("edicionNombres", m.nombres);
-    asignar("edicionApellidos", m.apellidos);
-    
-asignar("edicionFotoUrl", m.foto_url);
-
-const foto = $("edicionFoto");
-const mensajeFoto = $("edicionFotoMensaje");
-
-function actualizarVistaFoto() {
-  const url = obtenerUrlFotoAdministracion(valor("edicionFotoUrl"));
-
-  if (!url) {
-    foto.style.display = "none";
-    foto.removeAttribute("src");
-    mensajeFoto.textContent = "Sin fotografía o enlace no válido.";
-    return;
-  }
-
-  foto.onerror = () => {
-    foto.style.display = "none";
-    mensajeFoto.textContent = "No se pudo cargar la imagen. Revise el enlace.";
-  };
-
-  foto.onload = () => {
-    mensajeFoto.textContent = "Vista previa disponible.";
-  };
-
-  foto.src = url;
-  foto.style.display = "block";
-}
-
-$("edicionFotoUrl").oninput = actualizarVistaFoto;
-actualizarVistaFoto();
-
-    const foto = $("edicionFoto");
-const mensajeFoto = $("edicionFotoMensaje");
-
-if (foto && mensajeFoto) {
-    foto.onerror = () => {
-        foto.style.display = "none";
-        mensajeFoto.textContent = "No se pudo cargar la fotografía.";
-    };
-
-    if (m.foto_url) {
-        foto.src = m.foto_url;
-        foto.style.display = "block";
-        mensajeFoto.textContent = "";
-    } else {
-        foto.removeAttribute("src");
-        foto.style.display = "none";
-        mensajeFoto.textContent = "Sin fotografía registrada.";
-    }
-}
-    asignar("edicionFecha", m.fecha_nacimiento);
-    asignar("edicionEdad", calcularEdad(m.fecha_nacimiento));
-    asignar("edicionEstadoCivil", m.estado_civil);
-    asignar("edicionLugarNacimiento", m.lugar_nacimiento);
-    asignar("edicionProfesion", m.profesion_ocupacion);
-    asignar("edicionNivelAcademico", m.nivel_academico);
-    asignar("edicionTelefono", m.telefono_principal);
-    asignar("edicionTelefonoAlternativo", m.telefono_alternativo);
-    asignar("edicionNumeroHijos", m.numero_hijos);
-    asignar("edicionBautismoAgua", m.bautismo_agua);
-    asignar("edicionLugarBautismo", m.lugar_bautismo);
-    asignar("edicionBautismoEspiritu", m.bautismo_espiritu_santo);
-
-    // Si la base contiene un valor histórico no incluido en las opciones, se conserva como opción.
-    ["edicionEstadoCivil", "edicionNivelAcademico", "edicionBautismoAgua", "edicionBautismoEspiritu"].forEach((idCampo) => {
-      const campo = $(idCampo);
-      const dato = m[({
-        edicionEstadoCivil: "estado_civil",
-        edicionNivelAcademico: "nivel_academico",
-        edicionBautismoAgua: "bautismo_agua",
-        edicionBautismoEspiritu: "bautismo_espiritu_santo"
-      })[idCampo]];
-      if (dato && ![...campo.options].some((opcion) => opcion.value === dato)) {
-        campo.add(new Option(`${dato} (valor existente)`, dato));
-      }
-    });
-
-    const orgs = tablas.organizacionesMiembros
-      .filter((r) => r.miembro_id === id && r.activa !== false && !r.fecha_fin)
-      .map((r) => r.organizacion_id);
-    const estudios = tablas.estudiosMiembros
-      .filter((r) => r.miembro_id === id && r.activa !== false)
-      .map((r) => r.organizacion_id);
-
-    marcarCasillas("edicionOrganizaciones", orgs);
-    marcarCasillas("edicionEstudios", estudios);
-
-    const edad = calcularEdad(m.fecha_nacimiento);
-    $("seccionResponsable").classList.toggle("oculto", edad === "" || edad >= 18);
-
-    if (vinculoEnEdicion) {
-      asignar("edicionEstadoVinculo", vinculoEnEdicion.estado_vinculo);
-      asignar("edicionAdultoMiembro", vinculoEnEdicion.adulto_miembro_id);
-      asignar("edicionNombresResponsable", vinculoEnEdicion.nombres_adulto_pendiente);
-      asignar("edicionApellidosResponsable", vinculoEnEdicion.apellidos_adulto_pendiente);
-      asignar("edicionTelefonoResponsable", vinculoEnEdicion.telefono_adulto_pendiente);
-      asignar("edicionParentesco", vinculoEnEdicion.parentesco);
-      asignar("edicionObservacionesVinculo", vinculoEnEdicion.observaciones);
-    } else {
-      asignar("edicionEstadoVinculo", "pendiente");
-      asignar("edicionAdultoMiembro", "");
-      asignar("edicionNombresResponsable", "");
-      asignar("edicionApellidosResponsable", "");
-      asignar("edicionTelefonoResponsable", "");
-      asignar("edicionParentesco", "");
-      asignar("edicionObservacionesVinculo", "");
-    }
-
-    mostrarCamposBautismo();
-    mostrarEstado("estadoEdicion", "");
-    $("panelEdicion").classList.remove("oculto");
-    $("panelEdicion").scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   
   function abrirEdicion(id) {
     const m = tablas.miembros.find((miembro) => miembro.id === id);
@@ -707,6 +577,9 @@ if (foto && mensajeFoto) {
   }
 
   async function sincronizarOrganizaciones(miembroId, idsSeleccionados) {
+    
+  async function sincronizarEstudios(miembroId, idsSeleccionados) {
+
     const disponibles = new Set(
       tablas.organizaciones.filter(esMinisterio).map((o) => o.id)
     );
