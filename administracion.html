@@ -355,16 +355,26 @@
     <section class="tarjeta oculto" id="panelEdicion">
       <div class="encabezado-tarjeta">
         <h2>Editar registro de miembro</h2>
-        <div class="campo">
-    <label>Fotografía del miembro</label>
+        
+<div class="campo">
+    <label for="edicionFotoUrl">Enlace de la fotografía (opcional)</label>
+    <input
+        type="url"
+        id="edicionFotoUrl"
+        placeholder="Pegue aquí el enlace de Google Drive"
+        maxlength="1000"
+    >
+
     <img
         id="edicionFoto"
         src=""
         alt="Fotografía del miembro"
-        style="display:none; width:130px; height:150px; object-fit:cover; border-radius:8px;"
+        style="display:none; width:130px; height:150px; object-fit:cover; border-radius:8px; margin-top:10px;"
     >
-    <p id="edicionFotoMensaje">Sin fotografía registrada.</p>
+
+    <p id="edicionFotoMensaje">Puede pegar un enlace para agregar la fotografía.</p>
 </div>
+
         <span id="edicionCodigoVisible" class="contador">Código: —</span>
       </div>
       <form id="formularioEdicion">
