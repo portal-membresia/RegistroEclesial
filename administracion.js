@@ -980,58 +980,63 @@ async function generarPDF() {
       27
     );
 
+    
     const filas = resultadosActuales.map((m) => [
-      m.codigo_miembro || "",
-      m.nombres || "",
-      m.apellidos || "",
-      fechaBonita(m.fecha_nacimiento) || "",
-      m.telefono_principal || "",
-      m.estado_civil || "",
-      m.lugar_nacimiento || "",
-      m.profesion_ocupacion || "",
+      m.codigo_miembro ?? "",
+      `${m.nombres ?? ""} ${m.apellidos ?? ""}`.trim(),
+      fechaBonita(m.fecha_nacimiento),
+      m.telefono_principal ?? "",
       obtenerOrganizacionesDeMiembro(m.id)
         .map((o) => o.nombre)
         .join(", "),
-      obtenerEstudiosDeMiembro(m.id)
-        .map((o) => o.nombre)
-        .join(", ")
+      obtenerUrlFotoAdministracion(m.foto_url) || ""
     ]);
 
     pdf.autoTable({
       startY: 33,
       head: [[
         "Código",
-        "Nombres",
-        "Apellidos",
-        "Nacimiento",
+        "Nombre y apellidos",
+        "Fecha de nacimiento",
         "Teléfono",
-        "Estado civil",
-        "Lugar nacimiento",
-        "Ocupación",
-        "Organizaciones",
-        "Estudios bíblicos"
+        "Organización",
+        "URL de fotografía"
       ]],
       body: filas,
       theme: "grid",
-      margin: { left: 10, right: 10 },
+      margin: { top: 12, left: 10, right: 10, bottom: 12 },
+      tableWidth: "auto",
       styles: {
         font: "helvetica",
-        fontSize: 7,
-        cellPadding: 2,
+        fontSize: 8,
+        cellPadding: 2.5,
         overflow: "linebreak",
-        valign: "top"
+        valign: "middle",
+        lineColor: [215, 225, 219],
+        lineWidth: 0.15,
+        textColor: [45, 55, 50]
       },
       headStyles: {
         fillColor: [23, 63, 53],
         textColor: [255, 255, 255],
-        fontStyle: "bold"
+        fontStyle: "bold",
+        valign: "middle"
       },
       alternateRowStyles: {
         fillColor: [242, 246, 243]
       },
-      horizontalPageBreak: true,
-      horizontalPageBreakRepeat: [0, 1, 2]
+      columnStyles: {
+        0: { cellWidth: 17 },
+        1: { cellWidth: 48 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 28 },
+        4: { cellWidth: 65 },
+        5: { cellWidth: 75, fontSize: 7 }
+      },
+      showHead: "everyPage",
+      rowPageBreak: "avoid"
     });
+
 
     const fechaArchivo = new Date().toISOString().slice(0, 10);
 
