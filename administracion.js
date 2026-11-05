@@ -21,6 +21,7 @@ async function iniciarAdministracion() {
   let resultadosActuales = [];
   let miembroEnEdicion = null;
   let vinculoEnEdicion = null;
+  let redireccionandoPorCierre = false;
 
   function mostrarEstado(id, mensaje, tipo = "") {
     const elemento = $(id);
@@ -1060,7 +1061,118 @@ async function generarPDF() {
     );
   }
 }
+  // Limpiar los datos locales y salir del panel.
+  function finalizarSesion() {
+    if (redireccionandoPorCierre) return;
 
+    redireccionandoPorCierre = true;
+
+    // Vaciar los datos almacenados en memoria.
+    Object.keys(tablas).forEach((nombre) => {
+      tablas[nombre] = [];
+    });
+
+    resultadosActuales = [];
+    miembroEnEdicion = null;
+    vinculoEnEdicion = null;
+
+    // Limpiar el listado de miembros.
+    const lista = $("listaMiembros");
+    if (lista) lista.replaceChildren();
+
+    const contador = $("contadorMiembros");
+    if (contador) contador.textContent = "0 registros";
+
+    // Ocultar y limpiar el formulario de edición.
+    const panelEdicion = $("panelEdicion");
+    if (panelEdicion) panelEdicion.classList.add("oculto");
+
+    const formulario = $("formularioEdicion");
+    if (formulario) formulario.reset();
+
+    // Retirar la fotografía de la vista previa.
+    const foto = $("edicionFoto");
+
+    if (foto) {
+      foto.removeAttribute("src");
+      foto.style.display = "none";
+    }
+
+    // Limpiar las opciones cargadas.
+    ["edicionOrganizaciones", "edicionEstudios"].forEach((id) => {
+      const elemento = $(id);
+      if (elemento) elemento.replaceChildren();
+    });
+
+    // Limpiar los selectores.
+    [
+      "filtroOrganizacion",
+      "filtroEstudioBiblico",
+      "edicionAdultoMiembro"
+    ].forEach((id) => {
+      const elemento = $(id);
+
+      if (elemento) {
+        const primeraOpcion = elemento.options[0]?.cloneNode(true);
+        elemento.replaceChildren();
+
+        if (primeraOpcion) {
+          elemento.appendChild(primeraOpcion);
+        }
+      }
+    });
+
+    // Limpiar los filtros.
+    const busqueda = $("busquedaGeneral");
+    if (busqueda) busqueda.value = "";
+
+    const panelFiltros = $("panelFiltros");
+
+    if (panelFiltros) {
+      panelFiltros.querySelectorAll("input, select").forEach((campo) => {
+        if (campo.tagName === "SELECT") {
+          campo.selectedIndex = 0;
+        } else {
+          campo.value = "";
+        }
+      });
+    }
+
+    // Retirar los mensajes.
+    document.querySelectorAll(".estado").forEach((elemento) => {
+      elemento.textContent = "";
+    });
+
+    window.location.replace("acceso.html");
+  }
+
+  // Cerrar la sesión real de Supabase.
+  async function cerrarSesion() {
+    const boton = $("botonCerrarSesion");
+
+    if (boton) boton.disabled = true;
+
+    mostrarEstado("estadoCarga", "Cerrando sesión...");
+
+    try {
+      const { error } = await db.auth.signOut();
+
+      if (error) throw error;
+
+      finalizarSesion();
+
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+
+      if (boton) boton.disabled = false;
+
+      mostrarEstado(
+        "estadoCarga",
+        "No se pudo cerrar la sesión. Inténtelo nuevamente.",
+        "error"
+      );
+    }
+  }
 
   // Eventos del panel
   $("botonCargar").addEventListener("click", () => recargarDatos(true));
@@ -1097,15 +1209,25 @@ async function generarPDF() {
 
   // El campo de búsqueda rápida filtra los datos que ya están cargados.
   $("busquedaGeneral").addEventListener("input", () => aplicarFiltros(true));
+  
+    // Evento del botón para cerrar sesión.
+  $("botonCerrarSesion").addEventListener("click", cerrarSesion);
+
+  // Detectar cuando la sesión se cierra desde otra pestaña.
+  db.auth.onAuthStateChange((evento) => {
+    if (evento === "SIGNED_OUT") {
+      finalizarSesion();
+    }
+  });
 
   // Verificar sesión administrativa antes de consultar los datos.
   try {
     const { data, error } = await db.auth.getSession();
     if (error) throw error;
     if (!data?.session) {
-      window.location.href = "acceso.html";
-      return;
-    }
+      finalizarSesion();
+      return; 
+      }
   } catch (error) {
     console.error(error);
     mostrarEstado("estadoCarga", "No se pudo verificar la sesión administrativa. Revise el acceso e inténtelo de nuevo.", "error");
