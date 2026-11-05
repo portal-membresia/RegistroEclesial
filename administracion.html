@@ -252,7 +252,21 @@
   outline: 3px solid #d4a72c;
   outline-offset: 3px;
 }
+.acciones-cuenta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
 
+.acciones-cuenta button {
+  padding: 11px 18px;
+}
+
+@media (max-width: 600px) {
+  .acciones-cuenta {
+    justify-content: flex-start;
+  }
+}
   </style>
 </head>
 <body>
@@ -269,6 +283,17 @@
       <h1>Administración de miembros</h1>
       <p>Consulta, edición y reportes de los registros de membresía.</p>
     </div>
+  </div>
+  </div>
+
+  <div class="acciones-cuenta">
+    <button
+      type="button"
+      class="peligro"
+      id="botonCerrarSesion"
+    >
+      Cerrar sesión
+    </button>
   </div>
 </header>
 
@@ -446,10 +471,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="datos-miembros.js"></script>
   <script src="administracion.js"></script>
-
-<a class="boton-volver-inicio" href="acceso.html">
-  ← Volver al inicio
-</a>
 
 </body>
 </html>
